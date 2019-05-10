@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+ 
+double funkcja(double, double, double, double);
+ 
+int zapisbin(double, double, double, double, double, double, double, char[256]);
+void odczytbin(char[256]);
+ 
+int zapistxt(double, double, double, double, double, double, double, char[256]);
+void odczyttxt(char[256]);
+ 
+int main(int argc, char* argv[]) {
+    double a, b, c, pocz, kon, kroki, x, krok;
+    char nazwapliku[256];
+ 
+    if(argc==1) {      
+        printf("Podaj nazwe pliku z rozszerzeniem np: wynik.txt (.bin / .txt)\n");
+        gets(nazwapliku);   
+ 
+        printf("podaj a,b,c ktore beda argumentami funkcji kwadratowej\n");
+        scanf("%lf%lf%lf", &a,&b,&c);
+ 
+        printf("podaj zakres dla x\n");
+        scanf("%lf%lf", &pocz,&kon);
+       
+        printf("podaj liczbe wynikow jakie chcesz uzyskac w danym zakresie\n");
+        scanf("%lf", &kroki);
+ 
+        if(strstr(nazwapliku, ".bin") != NULL) {
+            zapisbin(x, pocz, kroki, kon, a, b, c, nazwapliku);
+        } else if(strstr(nazwapliku, ".txt") != NULL) {
+            zapistxt(x, pocz, kroki, kon, a, b, c, nazwapliku);
+        } else {
+            printf("nieprawidlowy typ pliku!");
+            return -1;
+        }
+ 
+    } else if(argc==8) { 
+        a = strtof(argv[1], NULL);
+        b = strtof(argv[2], NULL);
+        c = strtof(argv[3], NULL);
+        pocz = strtof(argv[4], NULL);
+        kon = strtof(argv[5], NULL);
+        kroki = strtof(argv[6], NULL);
+        strcpy(nazwapliku, argv[7]);
+ 
+        if(strstr(nazwapliku, ".bin") != NULL) {
+            zapisbin(x, pocz, kroki, kon, a, b, c, nazwapliku);
+        } else if(strstr(nazwapliku, ".txt") != NULL) {
+            zapistxt(x, pocz, kroki, kon, a, b, c, nazwapliku);
+        } else {
+            printf("nieprawidlowy typ pliku!");
+            return -1;
+        }
+ 
+    } 
+	else if(argc == 2) { 
+        strcpy(nazwapliku, argv[2]);
+       
+        if(strstr(nazwapliku, ".bin") != NULL) {
+            odczytbin(nazwapliku);
+        } else if(strstr(nazwapliku, ".txt") != NULL) {
+            odczyttxt(nazwapliku);
+        } else {
+            printf("nieprawidlowy typ pliku!");
+            return -1;
+        }
+    } 
+	else {
+        printf("nieprawidlowa ilosc argumentow");
+        return -1;
+    }
+    ///////////////////////////////////////////////////////////////////////////////
+    if(strstr(nazwapliku, ".bin") != NULL) {
+        odczytbin(nazwapliku);
+    } else
+	{
+        odczyttxt(nazwapliku);
+	}
+    return printf("Program zakonczyl prace pomyslnie");
+}
+ 
+double funkcja(double x, double a, double b, double c) {
+    return (a*x*x) + (b*x) + c;
+}
+  
+int zapistxt(double x, double pocz, double kroki,  double kon, double fa, double fb, double fc, char nazwapliku[256]){
+    FILE * wynik;
+    double krok = ((kon - pocz)/(kroki-1));
+    wynik = fopen(nazwapliku,"w");
+ 
+    double fx;
+ 
+    for(x = pocz; kroki-- > 0; x+=krok) {
+        fx = funkcja(x, fa, fb, fc);
+        fprintf(wynik, "x to: %f  y to: %f\n", x, fx);
+    }
+    fclose(wynik);
+    return ferror(wynik);
+}
+ 
+
+int zapisbin(double x, double pocz, double kroki, double kon, double fa, double fb, double fc, char nazwapliku[256]){
+    FILE * wynik;
+    double krok = ((kon - pocz)/(kroki-1));
+    wynik = fopen(nazwapliku,"wb");
+ 
+    double fx;
+ 
+    for(x = pocz; kroki-- > 0; x+=krok) {
+        fx = funkcja(x, fa, fb, fc);
+        fwrite(&x, sizeof(double), 1, wynik);
+        fwrite(&fx, sizeof(double), 1, wynik);
+    }
+ 
+    fclose(wynik);
+    return ferror(wynik);
+}
+	void odczyttxt(char * nazwapliku){
+	 	char c; 
+	    FILE * wynik;
+	    wynik = fopen(nazwapliku, "r");
+		if(!wynik)
+		        return 1;
+		    fseek(wynik, 0, SEEK_SET);
+		
+		    while((c = fgetc(wynik)) != EOF)
+		        printf("%c", c);
+		
+		    getchar();
+	    fclose(wynik); 
+	}
+void odczytbin(char nazwapliku[256]){
+    FILE * wynik;
+    wynik = fopen(nazwapliku,"rb");
+    rewind(wynik);
+    double x, fx;
+    while(!feof(wynik)){
+        fread(&x, sizeof(double), 1, wynik);
+        if(feof(wynik)) break;
+        fread(&fx, sizeof(double), 1, wynik);
+        printf ("x to: %.15f\t y to: %.15f\n", x, fx);
+    }
+    fclose(wynik);  
+}
+
+
