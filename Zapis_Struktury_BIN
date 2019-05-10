@@ -1,0 +1,83 @@
+//zapis do struktury menu usuwanie wierszy wypisywanie itd
+#include <stdio.h>
+#include <stdlib.h>
+ 
+struct osoba
+{
+    char imie[20];
+    char nazwisko[30];
+    unsigned int wiek;
+};
+ 
+int czytaj_osobe(FILE *plik, struct osoba o);
+int wpisz_osobe(FILE *plik, struct osoba o);
+int menu(FILE *plik, struct osoba o);
+int czyszczenie(void);
+ 
+int main (void)
+{
+    struct osoba o;
+    FILE *plik;
+    menu(plik, o);
+    return 0;
+}
+ 
+ 
+int wpisz_osobe(FILE *plik, struct osoba o)
+{
+    int koniec = 0;
+    while(koniec != 1)
+    {
+        plik=fopen("wyniki.bin", "ab");
+        printf("\nPodaj nazwisko, imie i wiek: "); scanf("%s %s %u", &o.imie, &o.nazwisko, &o.wiek);
+        fwrite(&o, sizeof (o), 1, plik);
+        printf("\n Aby zakonczyc wybierz 1 aby kontynuowac cokolwiek\n"); scanf("%d", &koniec);
+        fclose(plik);
+    }
+}
+
+int czytaj_osobe(FILE *plik, struct osoba o){
+    int i = 1;
+    plik=fopen("wyniki.bin", "a+b");
+   
+    if(fscanf(plik, "%d", &i) == EOF){
+    printf("\n Zawartosc pliku:\n Nr Imie Nazwisko Wiek  \n");
+    								}
+	while(fscanf(plik, "%d", &i) != EOF )
+    {
+        fread(&o, sizeof (o), 1, plik);
+        printf ("%d. %s %s %u\n", i, o.imie, o.nazwisko, o.wiek);
+            if (feof(plik))
+            {
+                fclose(plik);
+                break;
+            }
+            else
+        i++;
+    }
+    printf("\n");  
+    return 0;
+}
+  
+int menu(FILE *plik, struct osoba o){
+    int wybor = 0;
+    while(wybor <= 5)
+    {
+        printf("Aby wykonac wybierz liczby od 1-4\n\n\n Wybierz 1 aby: Wyswietlic plik \n\n Wybierz 2 aby: Dodac rekord \n\n Wybierz 3 aby: Wyczyscic plik \n\n\ Wybierz 4 aby: zakonczyc \n"); scanf("%d", &wybor);
+        switch(wybor)
+        {
+            case 1:
+                czytaj_osobe(plik, o);
+                break;
+            case 2:
+                wpisz_osobe(plik, o);
+                break;
+            case 3:
+                plik = fopen("wyniki.bin", "w");
+                break;
+            case 4:
+                return 0;
+        }
+    }
+                                    }
+
